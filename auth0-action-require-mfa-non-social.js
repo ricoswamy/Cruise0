@@ -37,9 +37,17 @@ exports.onExecutePostLogin = async (event, api) => {
     console.log(`User ${event.user.user_id} is using social login (${connectionStrategy}), skipping MFA requirement`);
     return;
   }
-  
-  // This is a non-social user (email/password), check if they have MFA enrolled
+
+  // This is a non-social user (email/password)
   const user = event.user;
+
+  // Check if email is verified first - MFA should only be required AFTER email verification
+  if (!user.email_verified) {
+    console.log(`User ${event.user.user_id} has not verified their email yet, skipping MFA requirement until email is verified`);
+    return;
+  }
+
+  // Email is verified, now check if they have MFA enrolled
   
   // Check if user has any MFA factors enrolled
   const hasMfaEnrolled = user.multifactor && user.multifactor.length > 0;
