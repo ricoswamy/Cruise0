@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Welcome Aboard - Cruise0</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #4682b4 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Cruise ship background */
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: 
+        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M20,60 Q30,50 40,60 T60,60 T80,60" stroke="rgba(255,255,255,0.1)" stroke-width="2" fill="none"/></svg>'),
+        radial-gradient(circle at 20% 80%, rgba(255,255,255,0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255,255,255,0.05) 0%, transparent 50%);
+      background-size: 200px 100px, 300px 300px, 300px 300px;
+      background-repeat: repeat-x, no-repeat, no-repeat;
+      background-position: bottom, center, center;
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    .login-container {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 3rem 2.5rem;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .cruise-logo {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .cruise-title {
+      color: #2a5298;
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin: 0 0 0.5rem 0;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .cruise-description {
+      color: #666;
+      font-size: 1.1rem;
+      margin: 0 0 2rem 0;
+      line-height: 1.4;
+    }
+
+    /* Auth0 Lock container styling */
+    #lock-container {
+      margin-top: 1.5rem;
+    }
+
+    @keyframes float {
+      0%, 100% { 
+        transform: translateY(0px); 
+      }
+      50% { 
+        transform: translateY(-10px); 
+      }
+    }
+
+    /* Custom styles for Auth0 Lock widget */
+    .auth0-lock.auth0-lock .auth0-lock-overlay {
+      background: none !important;
+    }
+
+    .auth0-lock.auth0-lock .auth0-lock-widget {
+      background: transparent !important;
+      box-shadow: none !important;
+    }
+
+    .auth0-lock.auth0-lock .auth0-lock-form {
+      background: transparent !important;
+    }
+
+    .auth0-lock.auth0-lock .auth0-lock-header {
+      background: transparent !important;
+    }
+
+    .auth0-lock.auth0-lock .auth0-lock-cred-pane {
+      background: transparent !important;
+    }
+
+    /* Mobile responsive */
+    @media (max-width: 480px) {
+      .login-container {
+        margin: 1rem;
+        padding: 2rem 1.5rem;
+      }
+      
+      .cruise-title {
+        font-size: 2rem;
+      }
+      
+      .cruise-description {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="cruise-logo">🚢</div>
+    <h1 class="cruise-title">Welcome Aboard</h1>
+    <p class="cruise-description">Log in to book your travel with Cruise0.</p>
+    
+    <div id="lock-container"></div>
+  </div>
+
+  <!--[if IE 8]>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/ie8/0.2.5/ie8.js"></script>
+  <![endif]-->
+
+  <!--[if lte IE 9]>
+  <script src="https://cdn.auth0.com/js/base64.js"></script>
+  <script src="https://cdn.auth0.com/js/es5-shim.min.js"></script>
+  <![endif]-->
+
+  <script src="https://cdn.auth0.com/js/lock/11.30.0/lock.min.js"></script>
+  <script>
+    // Decode utf8 characters properly
+    var config = JSON.parse(decodeURIComponent(escape(window.atob('@@config@@'))));
+    config.extraParams = config.extraParams || {};
+    
+    var connection = config.connection;
+    var prompt = config.prompt;
+    var languageBaseUrl = config.languageBaseUrl;
+    var language = config.language;
+    
+    if (config.dict && config.dict.signin && config.dict.signin.title) {
+      config.dict.signin.title = "Welcome Aboard";
+    }
+    
+    var loginHint = config.extraParams.login_hint;
+    var colors = config.colors || {};
+    
+    // Construct theme object to pass to Lock
+    var theme = {
+      logo: 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60"><text x="30" y="40" font-size="40" text-anchor="middle" fill="#2a5298">🚢</text></svg>'),
+      primaryColor: colors.primary ? colors.primary : '#2a5298'
+    };
+    
+    // Available Lock configuration options: https://auth0.com/docs/libraries/lock/v11/configuration
+    var lock = new Auth0Lock(config.clientID, config.auth0Domain, {
+      auth: {
+        redirectUrl: config.callbackURL,
+        responseType: (config.internalOptions || {}).response_type ||
+          (config.callbackOnLocationHash ? 'token' : 'code'),
+        params: config.internalOptions
+      },
+      assetsUrl:  config.assetsUrl,
+      allowedConnections: connection ? [connection] : null,
+      rememberLastLogin: !prompt,
+      language: language,
+      languageBaseUrl: languageBaseUrl,
+      theme: theme,
+      prefill: loginHint ? { email: loginHint, username: loginHint } : null,
+      closable: false,
+      defaultDatabaseConnection: connection,
+      // Custom options for Cruise0 theme
+      allowSignUp: true,
+      allowForgotPassword: true,
+      socialButtonStyle: 'big',
+      languageDictionary: {
+        title: "Welcome Aboard",
+        emailInputPlaceholder: "Enter your email",
+        passwordInputPlaceholder: "Enter your password"
+      }
+    });
+
+    lock.show({
+      container: 'lock-container'
+    });
+  </script>
+</body>
+</html>
